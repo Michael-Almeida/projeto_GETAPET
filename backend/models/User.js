@@ -10,7 +10,7 @@ const User = mongoose.model(
       email: { type: String, required: true },
       password: { type: String, required: true },
       image: { type: String },
-      phonne: { type: String },
+      phone: { type: String },
     },
     { timestamps: true }
   )
