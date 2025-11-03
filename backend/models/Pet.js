@@ -6,16 +6,16 @@ const Pet = mongoose.model(
   "Pet",
   new Schema(
     {
-      name: { type: string, required: true },
+      name: { type: String, required: true },
       age: { type: Number, required: true },
       weight: { type: Number, required: true },
       color: { type: String },
       image: { type: Array, required: true },
-      avaliable: { type: Boolean },
+      available: { type: Boolean },
       user: Object,
       adopter: Object
     },
-    { timestaps: true }
+    { timestamps: true }
   )
 );
 
