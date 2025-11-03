@@ -7,7 +7,7 @@ const getUserByToken = require("../helpers/get-user-by-token");
 
 module.exports = class UserController {
   static async register(req, res) {
-    const { name, email, phone, password, confirmpassword } = req.body;
+    const { name, email, phone, password, confirmPassword } = req.body;
     if (!name) {
       return res.status(422).json({ message: "O nome é obrigatório" });
     }
@@ -20,13 +20,13 @@ module.exports = class UserController {
     if (!password) {
       return res.status(422).json({ message: "A senha é obrigatório" });
     }
-    if (!confirmpassword) {
+    if (!confirmPassword) {
       return res
         .status(422)
         .json({ message: "A confirmação de senha é obrigatório" });
     }
 
-    if (password !== confirmpassword) {
+    if (password !== confirmPassword) {
       res.status(422).json({
         message: "A senha e a confirmação de senha precisam ser iguais",
       });
@@ -120,18 +120,25 @@ module.exports = class UserController {
   }
 
   static async editUser(req, res) {
-    const { id } = req.params;
-
     const token = getToken(req);
     const user = await getUserByToken(token);
 
-    const { name, email, phone, password, confirmpassword } = req.body;
+    const { name, email, phone, password, confirmPassword } = req.body;
 
-    const image = "";
+    // let image = "";
+
+    if (req.file) {
+      console.log(req.file.filename);
+      user.image = req.file.filename;
+      // user.image = image;
+    }
 
     if (!name) {
       return res.status(422).json({ message: "O nome é obrigatório" });
     }
+
+    user.name = name;
+
     if (!email) {
       return res.status(422).json({ message: "O e-mail é obrigatório" });
     }
@@ -143,17 +150,19 @@ module.exports = class UserController {
       });
     }
 
+    user.email = email;
+
     if (!phone) {
       return res.status(422).json({ message: "O telefone é obrigatório" });
     }
 
     user.phone = phone;
 
-    if (password !== confirmpassword) {
+    if (password !== confirmPassword) {
       return res.status(422).json({
         message: "A senha e a confirmação de senha precisam ser iguais",
       });
-    } else if (password === confirmpassword && password != null) {
+    } else if (password === confirmPassword && password != null) {
       const salt = await bcrypt.genSalt(12);
       const passwordHash = await bcrypt.hash(password, salt);
 
@@ -161,11 +170,13 @@ module.exports = class UserController {
     }
 
     try {
-      const updateUser = await User.findOneAndUpdate(
+      const updatedUser = await User.findOneAndUpdate(
         { _id: user._id },
         { $set: user },
         { new: true }
       );
+
+      // console.log("usuário atualizado", updatedUser);
 
       return res
         .status(200)
