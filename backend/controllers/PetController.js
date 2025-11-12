@@ -108,4 +108,31 @@ module.exports = class PetController {
 
     return res.status(200).json({ pet: pet });
   }
+
+  static async removePetById(req, res) {
+    const id = req.params.id;
+
+    if (!ObjectId.isValid(id)) {
+      res.status(422).json({ message: "ID inválido" });
+      return;
+    }
+
+    const pet = await Pet.findOne({ _id: id });
+
+    if (!pet) {
+      return res.status(404).json({ message: "Pet não encontrado" });
+    }
+
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+
+    if (pet.user._id.toString() !== user._id.toString()) {
+      return res.status(422).json({
+        message:
+          "Houve um erro em processar a sua solicitação, tente novamente mais tarde",
+      });
+    }
+
+    return res.status(200).json({ message: "Pet excluído", Pet: pet });
+  }
 };
