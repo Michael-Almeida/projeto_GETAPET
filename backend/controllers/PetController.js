@@ -135,4 +135,67 @@ module.exports = class PetController {
 
     return res.status(200).json({ message: "Pet excluído", Pet: pet });
   }
+
+  static async updatePet(req, res) {
+    const id = req.params.id;
+
+    const pet = await Pet.findOne({ _id: id });
+
+    if (!pet) {
+      return res.status(404).json({ message: "Pet não encontrado" });
+    }
+
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+
+    if (pet.user._id.toString() != user._id.toString()) {
+      return res.status(422).json({
+        message:
+          "Houve um problema ao processar a sua solicitação, tente novamente mais tarde",
+      });
+    }
+
+    const { name, age, weight, color, available } = req.body;
+
+    const images = req.files;
+
+    const updatedData = {};
+
+    if (!name) {
+      return res.status(422).json({ message: "O nome é obrigatório" });
+    } else {
+      updatedData.name = name;
+    }
+
+    if (!age) {
+      return res.status(422).json({ message: "A idade é obrigatório" });
+    } else {
+      updatedData.age = age;
+    }
+
+    if (!weight) {
+      return res.status(422).json({ message: "O peso é obrigatório" });
+    } else {
+      updatedData.weight = weight;
+    }
+
+    if (!color) {
+      return res.status(422).json({ message: "A cor é obrigatória" });
+    } else {
+      updatedData.color = color;
+    }
+
+    if (images.length === 0) {
+      return res.status(422).json({ message: "A imagem é obrigatória" });
+    } else {
+      updatedData.images = [];
+      images.map((image) => {
+        updatedData.images.push(image.filename);
+      });
+    }
+
+    await Pet.findOneAndUpdate({ _id: id }, updatedData);
+
+    return res.status(200).json({ message: "Pet atualizado com sucesso" });
+  }
 };
