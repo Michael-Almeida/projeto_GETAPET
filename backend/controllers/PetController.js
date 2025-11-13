@@ -45,7 +45,7 @@ module.exports = class PetController {
       available,
       images: [],
       user: {
-        _id: user.id,
+        _id: user._id,
         name: user.name,
         image: user.image,
         phone: user.phone,
@@ -197,5 +197,46 @@ module.exports = class PetController {
     await Pet.findOneAndUpdate({ _id: id }, updatedData);
 
     return res.status(200).json({ message: "Pet atualizado com sucesso" });
+  }
+
+  static async schedule(req, res) {
+    const id = req.params.id;
+
+    const pet = await Pet.findOne({ _id: id });
+
+    if (!pet) {
+      return res.status(422).json({ message: "Pet não encontrado" });
+    }
+
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+
+    if (pet.user._id.equals(user._id)) {
+      return res.status(422).json({
+        message: "Você não pode agendar uma visita com seu próprio pet!",
+      });
+    }
+
+    if (pet.adopter) {
+      if (pet.adopter._id.equals(user._id)) {
+        return res
+          .status(422)
+          .json({ message: "Você já agendou uma visita para este pet" });
+      }
+    }
+
+    pet.adopter = {
+      _id: user._id,
+      name: user.name,
+      image: user.image,
+    };
+
+    await Pet.findByIdAndUpdate(id, pet);
+
+    return res
+      .status(200)
+      .json({
+        message: `A visita foi agendada com sucesso, entre em contato com ${pet.user.name} pelo telefone ${pet.user.phone}`,
+      });
   }
 };
