@@ -84,6 +84,7 @@ module.exports = class PetController {
 
     return res.status(200).json(pets);
   }
+
   static async getAllUserAdoptions(req, res) {
     const token = getToken(req);
     const user = await getUserByToken(token);
@@ -93,6 +94,7 @@ module.exports = class PetController {
     );
     return res.status(200).json({ pets: pets });
   }
+
   static async getPetById(req, res) {
     const id = req.params.id;
 
@@ -231,12 +233,24 @@ module.exports = class PetController {
       image: user.image,
     };
 
-    await Pet.findByIdAndUpdate(id, pet);
+    await Pet.findByIdAndUpdate(
+      id,
+      { $set: { adopter: pet.adopter } },
+      { new: true }
+    );
 
-    return res
-      .status(200)
-      .json({
-        message: `A visita foi agendada com sucesso, entre em contato com ${pet.user.name} pelo telefone ${pet.user.phone}`,
-      });
+    return res.status(200).json({
+      message: `A visita foi agendada com sucesso, entre em contato com ${pet.user.name} pelo telefone ${pet.user.phone}`,
+    });
+  }
+
+  static async conclludeAdoption(req, res) {
+    const id = req.params.id;
+
+    const pet = await Pet.findById({ _id: id });
+
+    if (!pet) {
+      return res.status(404).json({ message: "Pet não encontrado" });
+    }
   }
 };
