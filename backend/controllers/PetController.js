@@ -76,8 +76,9 @@ module.exports = class PetController {
   static async getAllUserPets(req, res) {
     const token = getToken(req);
     const user = await getUserByToken(token);
+    console.log("🚀 ~ getAllUserPets ~ user:", user)
 
-    const pets = await Pet.find({ "user._id": String(user._id) }).sort(
+    const pets = await Pet.find({ "user._id": (user._id) }).sort(
       "-createdAt"
     );
     console.log(pets);
@@ -89,7 +90,7 @@ module.exports = class PetController {
     const token = getToken(req);
     const user = await getUserByToken(token);
 
-    const pets = await Pet.find({ "adopter._id": String(user._id) }).sort(
+    const pets = await Pet.find({ "adopter._id": (user._id) }).sort(
       "-createdAt"
     );
     return res.status(200).json({ pets: pets });
@@ -252,5 +253,27 @@ module.exports = class PetController {
     if (!pet) {
       return res.status(404).json({ message: "Pet não encontrado" });
     }
+
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+
+    console.log("usuário ", user);
+
+    if (pet.user._id.toString() !== user._id.toString()) {
+      return res.status(422).json({
+        message:
+          "Houve um problema em processar sua solicitação, tente novamente mais tarde!",
+      });
+    }
+
+    pet.available = false;
+
+    await Pet.findByIdAndUpdate(id, pet);
+
+    return res
+      .status(200)
+      .json({
+        message: "Parabéns, o ciclo de adoção foi finalizado com sucesso",
+      });
   }
 };
