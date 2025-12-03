@@ -1,16 +1,16 @@
 import { Link } from "react-router-dom";
 
+import styles from "./Navbar.module.css";
 import Logo from "../../assets/img/logo.png";
 
 function Navbar() {
   return (
-    <nav>
-      <nav>
-        <div>
-          <img src={Logo} alt="Get A Pet" />
-          <h2>Get A Pet</h2>
-        </div>
-      </nav>
+    <nav className={styles.navbar}>
+      <div className={styles.navbar_logo}>
+        <img src={Logo} alt="Get A Pet" />
+        <h2>Get A Pet</h2>
+      </div>
+
       <ul>
         <li>
           <Link to="/">Adotar</Link>
