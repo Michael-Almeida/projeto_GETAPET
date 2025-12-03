@@ -5,16 +5,19 @@ import Home from "./components/pages/Home";
 
 import Footer from "./components/layout/Footer";
 import Navbar from "./components/layout/Navbar";
+import Container from './components/layout/Container'
 
 function App() {
   return (
     <Router>
       <Navbar />
-      <Routes>
-        <Route path="/login" element={<Login />}></Route>
-        <Route path="/register" element={<Register />}></Route>
-        <Route path="/" element={<Home />}></Route>
-      </Routes>
+      <Container>
+        <Routes>
+          <Route path="/login" element={<Login />}></Route>
+          <Route path="/register" element={<Register />}></Route>
+          <Route path="/" element={<Home />}></Route>
+        </Routes>
+      </Container>
       <Footer />
     </Router>
   );
